@@ -36,4 +36,36 @@ fs.readFile("input.txt", "utf8", (err, data) => {
   console.log("Sorted Array 2:", array2);
   console.log("Result of sum of differences:", result);
 
+  // Create a Map to store the counts
+  const numberCounts = new Map();
+
+  // Iterate over array2 and count occurrences
+  array2.forEach((num) => {
+    if (numberCounts.has(num)) {
+      // Increment the count if the number is already in the map
+      numberCounts.set(num, numberCounts.get(num) + 1);
+    } else {
+      // Initialize the count if the number is not in the map
+      numberCounts.set(num, 1);
+    }
+  });
+
+  // Log the counts
+  console.log("Number counts in array2:");
+  numberCounts.forEach((count, num) => {
+    console.log(`${num}: ${count}`);
+  });
+
+  console.log(`Total unique numbers: ${numberCounts.size}`);
+
+  // Initialize the similarity score
+  let similarityScore = 0;
+
+  // Iterate over array1 and calculate the score
+  array1.forEach((num) => {
+    const countInArray2 = numberCounts.get(num) || 0; // Default to 0 if not found
+    similarityScore += num * countInArray2; // Multiply and add to the score
+  });
+
+  console.log(`Similarity Score: ${similarityScore}`);
 });
