@@ -51,6 +51,23 @@ function checkOrderAndDifference(numbers) {
   return "Safe";
 }
 
+function checkWithOneRemoval(numbers) {
+  for (let i = 0; i < numbers.length; i++) {
+    const newArray = [...numbers.slice(0, i), ...numbers.slice(i + 1)];
+    const orderResult = checkOrder(newArray);
+    const differenceResult = checkDifference(newArray);
+
+    if (
+      (orderResult.startsWith("Ascending") ||
+        orderResult.startsWith("Descending")) &&
+      differenceResult === "Safe"
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function calculateSafe(lines) {
   let safeCount = 0;
 
@@ -59,10 +76,19 @@ function calculateSafe(lines) {
       .split(/\s+/)
       .map(Number)
       .filter((num) => !isNaN(num));
-    const result = checkOrderAndDifference(numbers);
+
+    let result = checkOrderAndDifference(numbers);
+
+    if (result !== "Safe") {
+      const canBeMadeSafe = checkWithOneRemoval(numbers);
+      if (canBeMadeSafe) {
+        result = "Safe by removing one bad level";
+      }
+    }
 
     console.log(`Line ${index + 1}: ${result}`);
-    if (result === "Safe") {
+
+    if (result === "Safe" || result === "Safe by removing one bad level") {
       safeCount++;
     }
   });
