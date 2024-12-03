@@ -1,30 +1,39 @@
-const fs = require('fs'); // File system module to read files
+const fs = require('fs');
 
-// Regular expression to find valid mul(number, number) patterns
-const pattern = /[^a-zA-Z0-9]*mul\((\d+),\s*(\d+)\)/g;
+// Combined regex to match do(), don't(), or mul(number, number)
+const combinedPattern = /\bdo\(\)|\bdon't\(\)|mul\((\d+),\s*(\d+)\)/g;
 
-// Function to process the input file
 function processFile(filename) {
-  // Read the file content
   fs.readFile(filename, 'utf8', (err, data) => {
     if (err) {
       console.error('Error reading file:', err);
       return;
     }
 
-    // Find all matches using the regex
-    let match;
+    let enabled = true; // Initial state: mul instructions are enabled
     let totalSum = 0;
+    let match;
 
-    while ((match = pattern.exec(data)) !== null) {
-      // Extract the numbers from the match
-      const num1 = parseInt(match[1], 10); // First number
-      const num2 = parseInt(match[2], 10); // Second number
-
-      // Multiply and add to the total sum
-      const product = num1 * num2;
-      totalSum += product;
-      console.log(`Found: ${match[0]} => ${num1} x ${num2} = ${product}`);
+    // Process all matches in the input data
+    while ((match = combinedPattern.exec(data)) !== null) {
+      if (match[0] === 'do()') {
+        // Enable future mul instructions
+        enabled = true;
+        console.log('do() => mul enabled');
+      } else if (match[0] === "don't()") {
+        // Disable future mul instructions
+        enabled = false;
+        console.log("don't() => mul disabled");
+      } else if (match[0].startsWith('mul') && enabled) {
+        // Valid mul instruction with numbers
+        const num1 = parseInt(match[1], 10);
+        const num2 = parseInt(match[2], 10);
+        const product = num1 * num2;
+        totalSum += product;
+        console.log(`Found: ${match[0]} => ${num1} x ${num2} = ${product}`);
+      } else if (match[0].startsWith('mul') && !enabled) {
+        console.log(`Skipping: ${match[0]} (mul disabled)`);
+      }
     }
 
     // Output the final result
